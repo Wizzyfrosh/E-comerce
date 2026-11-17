@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type MouseEvent } from "react";
+import Image from "next/image";
 import { Heart, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
 
 import { cn, discountPercent } from "@/lib/utils";
@@ -83,10 +84,12 @@ function FeaturedProductPanel({ product }: { product: ProductCardData }) {
   return (
     <div className="flex h-full flex-col rounded-xl border border-border bg-white p-4">
       <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
-        <img
+        <Image
           src={activeImage}
           alt={product.name}
-          className="h-full w-full object-cover"
+          fill
+          sizes="(max-width: 1024px) 100vw, 25vw"
+          className="object-cover"
         />
         {product.badge && <CornerBadge type={product.badge} />}
         <button

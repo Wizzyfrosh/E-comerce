@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 import type { HeroSlide } from "@/types";
@@ -40,10 +41,12 @@ function HeroSlideCard({ slide }: { slide: HeroSlide }) {
 
       <div className="relative hidden items-center justify-center md:flex">
         <div className="absolute h-56 w-56 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
-        <img
+        <Image
           src={slide.image_url}
           alt={slide.title}
-          className="relative max-h-72 w-auto rounded-xl object-contain shadow-2xl"
+          width={420}
+          height={420}
+          className="relative h-auto w-auto max-h-72 rounded-xl object-contain shadow-2xl"
         />
       </div>
     </div>

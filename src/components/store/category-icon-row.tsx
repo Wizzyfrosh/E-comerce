@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import type { CategoryNavItem } from "@/types";
 import { previewCategories } from "@/data/preview";
@@ -20,13 +21,14 @@ export function CategoryIconRow({
           href={`/category/${category.slug}`}
           className="group flex w-20 shrink-0 flex-col items-center gap-2"
         >
-          <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-100 ring-1 ring-border transition group-hover:ring-2 group-hover:ring-primary">
+          <span className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-100 ring-1 ring-border transition group-hover:ring-2 group-hover:ring-primary">
             {category.image_url ? (
-              <img
+              <Image
                 src={category.image_url}
                 alt=""
-                className="h-full w-full object-cover"
-                loading="lazy"
+                fill
+                sizes="64px"
+                className="object-cover"
               />
             ) : (
               <span className="text-lg font-bold text-primary">

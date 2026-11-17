@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -66,10 +67,12 @@ export function PromoBannerCard({ banner, className }: PromoBannerCardProps) {
       </div>
 
       {banner.image_url && (
-        <img
+        <Image
           src={banner.image_url}
           alt=""
           aria-hidden="true"
+          width={96}
+          height={96}
           className="h-20 w-20 shrink-0 rounded-lg object-cover md:h-24 md:w-24"
         />
       )}

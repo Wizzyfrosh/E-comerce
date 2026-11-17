@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 import type { PromoBanner } from "@/types";
@@ -34,11 +35,13 @@ export function FooterDiscountBanner({
         </div>
 
         {banner.image_url && (
-          <img
+          <Image
             src={banner.image_url}
             alt=""
             aria-hidden="true"
-            className="max-h-36 w-auto rounded-lg object-contain shadow-2xl md:max-h-44"
+            width={300}
+            height={300}
+            className="h-auto w-auto max-h-36 rounded-lg object-contain shadow-2xl md:max-h-44"
           />
         )}
       </div>

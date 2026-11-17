@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronDown, Menu } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -57,9 +58,11 @@ export function MegaMenu({ categories, className }: MegaMenuProps) {
                     className="group flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary"
                   >
                     {category.image_url && (
-                      <img
+                      <Image
                         src={category.image_url}
                         alt=""
+                        width={32}
+                        height={32}
                         className="h-8 w-8 rounded-md bg-gray-100 object-cover"
                       />
                     )}

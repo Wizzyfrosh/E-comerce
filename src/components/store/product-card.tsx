@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, type MouseEvent } from "react";
 import { Heart, ShoppingCart } from "lucide-react";
 
@@ -54,11 +55,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
       )}
     >
       <div className="relative aspect-square overflow-hidden rounded-md bg-gray-100">
-        <img
+        <Image
           src={product.image_url}
           alt={product.name}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          fill
+          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
         {product.badge && <CornerBadge type={product.badge} />}
         <button
