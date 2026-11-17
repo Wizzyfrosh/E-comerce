@@ -1,23 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
 import {
   DollarSign,
   Globe,
   Heart,
   MapPin,
   Package,
-  Search,
   ShoppingCart,
   Truck,
   User,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
 import { previewCategories } from "@/data/preview";
 import { MegaMenu } from "./mega-menu";
+import { SearchSuggestions } from "./search-suggestions";
 import { useCartStore } from "./cart-store";
 
 const NAV_LINKS = [
@@ -67,13 +65,6 @@ function TopUtilityBar() {
 function MainHeader() {
   const cartCount = useCartStore((state) => state.cartCount);
   const wishlistCount = useCartStore((state) => state.wishlistCount);
-  const [query, setQuery] = useState("");
-
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // Phase 1: static preview. Phase 2 routes to /search?q=...
-  };
-
   return (
     <div className="border-b border-border bg-white">
       <div className="container-store flex items-center gap-4 py-4">
@@ -82,39 +73,7 @@ function MainHeader() {
           <span className="text-primary">az</span>
         </Link>
 
-        <form
-          onSubmit={handleSearch}
-          role="search"
-          className="flex flex-1 items-center overflow-hidden rounded-full bg-gray-100 focus-within:ring-2 focus-within:ring-primary/30"
-        >
-          <select
-            aria-label="Search in category"
-            className="h-10 cursor-pointer border-r border-border bg-transparent pl-4 pr-2 text-sm text-foreground outline-none"
-            defaultValue="all"
-          >
-            <option value="all">All Categories</option>
-            {previewCategories.map((category) => (
-              <option key={category.id} value={category.slug}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          <Input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search products, brands and more…"
-            aria-label="Search products"
-            className="h-10 flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
-          <button
-            type="submit"
-            aria-label="Search"
-            className="mx-1.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary/90"
-          >
-            <Search size={15} />
-          </button>
-        </form>
+        <SearchSuggestions categories={previewCategories} />
 
         <div className="flex shrink-0 items-center gap-1">
           <Link
