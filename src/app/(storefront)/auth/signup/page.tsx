@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { triggerWelcomeEmail } from "@/lib/actions/emails";
 import { signupSchema } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +55,10 @@ export default function SignupPage() {
       setError(error.message);
       return;
     }
+
+    // Fire-and-forget welcome email (Resend when configured; console fallback
+    // otherwise). Supabase still sends its own verification email.
+    void triggerWelcomeEmail(parsed.data.name, parsed.data.email).catch(() => {});
 
     setSuccess(true);
   }

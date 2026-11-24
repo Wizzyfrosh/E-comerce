@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { triggerPasswordReset } from "@/lib/actions/emails";
 import { resetSchema } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,12 @@ export default function ResetPage() {
       setError(error.message);
       return;
     }
+
+    // Fire-and-forget demo fallback email; Supabase sends its own reset email
+    // when SMTP/provider is configured. Never block the success state.
+    void triggerPasswordReset(parsed.data.email, `${siteUrl}/auth/reset`).catch(
+      () => {}
+    );
 
     setSent(true);
   }
