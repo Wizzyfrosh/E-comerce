@@ -50,3 +50,44 @@ export type SignupInput = z.infer<typeof signupSchema>;
 export type ResetInput = z.infer<typeof resetSchema>;
 export type AddressInput = z.infer<typeof addressSchema>;
 export type CouponInput = z.infer<typeof couponSchema>;
+
+/** Checkout step 1: contact details. */
+export const contactSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  phone: z
+    .string()
+    .regex(/^[+0-9 ()-]{7,20}$/, "Enter a valid phone number")
+    .optional()
+    .or(z.literal("")),
+});
+
+/** Checkout step 3: shipping method selection. */
+export const shippingMethodSchema = z.object({
+  method: z.enum(["free", "standard", "express"], {
+    message: "Choose a shipping method",
+  }),
+});
+
+/** Checkout step 2: shipping address (reuses address schema with required name). */
+export const checkoutAddressSchema = addressSchema.extend({
+  full_name: z.string().min(2, "Full name is required"),
+  line1: z.string().min(3, "Address line 1 is required"),
+  city: z.string().min(2, "City is required"),
+  postal_code: z.string().min(3, "Postal code is required"),
+  country: z.string().min(2, "Country is required"),
+});
+
+/** Account profile update. */
+export const profileSchema = z.object({
+  full_name: z.string().min(2, "Name must be at least 2 characters"),
+  phone: z
+    .string()
+    .regex(/^[+0-9 ()-]{7,20}$/, "Enter a valid phone number")
+    .optional()
+    .or(z.literal("")),
+});
+
+export type ContactInput = z.infer<typeof contactSchema>;
+export type ShippingMethodInput = z.infer<typeof shippingMethodSchema>;
+export type CheckoutAddressInput = z.infer<typeof checkoutAddressSchema>;
+export type ProfileInput = z.infer<typeof profileSchema>;
