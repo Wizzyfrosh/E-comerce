@@ -11,6 +11,7 @@ import { ProductGallery } from "./product-gallery";
 import { VariantSelector } from "./variant-selector";
 import { QuantitySelector } from "./quantity-selector";
 import { useCartStore } from "./cart-store";
+import { toggleWishlistItem } from "@/lib/actions/wishlist";
 
 interface ProductPdpClientProps {
   product: ProductWithRelations;
@@ -37,10 +38,11 @@ const STOCK_STYLES: Record<StockLevel, { dot: string; text: string; label: strin
  */
 export function ProductPdpClient({ product }: ProductPdpClientProps) {
   const variants = product.variants ?? [];
-  const addToCart = useCartStore((state) => state.addToCart);
-  const addWishlist = useCartStore((state) => state.addWishlist);
-  const removeWishlist = useCartStore((state) => state.removeWishlist);
-  const [wishlisted, setWishlisted] = useState(false);
+  const addItem = useCartStore((state) => state.addItem);
+  const toggleWishlist = useCartStore((state) => state.toggleWishlist);
+  const inWishlist = useCartStore((state) =>
+    state.wishlist.includes(product.slug)
+  );
 
   // Group variants by option_name and pre-select the first in-stock of each.
   const initialSelected = useMemo(() => {
@@ -100,15 +102,38 @@ export function ProductPdpClient({ product }: ProductPdpClientProps) {
     setQuantity(1);
   };
 
-  const toggleWishlist = () => {
-    const next = !wishlisted;
-    setWishlisted(next);
-    if (next) addWishlist();
-    else removeWishlist();
-  };
-
   const sku = selectedVariants.find((v) => v.sku)?.sku ?? product.sku;
   const maxQuantity = Math.max(1, effectiveStock);
+
+  const handleToggleWishlist = () => {
+    toggleWishlist(product.slug);
+    // Best-effort server persistence for logged-in users; ignored when the
+    // database is unavailable (guest/local mode still works).
+    void toggleWishlistItem(product.id).catch(() => undefined);
+  };
+
+  const handleAddToCart = () => {
+    if (outOfStock) return;
+    const variantIds = selectedVariants.map((v) => v.id);
+    const optionLabels = selectedVariants
+      .map((v) => v.option_value)
+      .join(" · ");
+    const imageUrl =
+      selectedColorVariant?.image_url ??
+      product.images?.[0]?.image_url ??
+      "";
+    addItem({
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+      image_url: imageUrl,
+      sku,
+      variantIds,
+      optionLabels,
+      unitPrice: effectiveSale,
+      qty: quantity,
+    });
+  };
 
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
@@ -163,7 +188,7 @@ export function ProductPdpClient({ product }: ProductPdpClientProps) {
           <button
             type="button"
             disabled={outOfStock}
-            onClick={() => addToCart()}
+            onClick={handleAddToCart}
             className="flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 min-w-[180px]"
           >
             <ShoppingCart size={16} />
@@ -171,19 +196,19 @@ export function ProductPdpClient({ product }: ProductPdpClientProps) {
           </button>
           <button
             type="button"
-            onClick={toggleWishlist}
-            aria-pressed={wishlisted}
-            aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            onClick={handleToggleWishlist}
+            aria-pressed={inWishlist}
+            aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
             className={cn(
               "flex h-10 w-10 items-center justify-center rounded-md border transition",
-              wishlisted
+              inWishlist
                 ? "border-brand-sale bg-brand-sale/10 text-brand-sale"
                 : "border-border bg-white text-foreground hover:border-gray-400"
             )}
           >
             <Heart
               size={18}
-              className={cn(wishlisted && "fill-brand-sale text-brand-sale")}
+              className={cn(inWishlist && "fill-brand-sale text-brand-sale")}
             />
           </button>
         </div>

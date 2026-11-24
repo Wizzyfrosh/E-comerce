@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, type MouseEvent } from "react";
+import { type MouseEvent } from "react";
 import { Heart, ShoppingCart } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -21,29 +21,39 @@ interface ProductCardProps {
 /**
  * Compact product card. The whole card links to the PDP; the wishlist heart
  * and Add-to-Cart button stop propagation so they don't trigger navigation.
+ * Add-to-Cart writes a guest line to the persisted zustand store; the server
+ * recomputes the authoritative price on the cart/checkout pages.
  */
 export function ProductCard({ product, className }: ProductCardProps) {
-  const [wishlisted, setWishlisted] = useState(false);
-  const addToCart = useCartStore((state) => state.addToCart);
-  const addWishlist = useCartStore((state) => state.addWishlist);
-  const removeWishlist = useCartStore((state) => state.removeWishlist);
+  const addItem = useCartStore((state) => state.addItem);
+  const toggleWishlist = useCartStore((state) => state.toggleWishlist);
+  const inWishlist = useCartStore((state) =>
+    state.wishlist.includes(product.slug)
+  );
 
   const totalUnits = product.sold_count + product.stock_quantity;
   const showProgress = product.sold_count > 0 && product.stock_quantity < 100;
 
-  const toggleWishlist = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleToggleWishlist = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    const next = !wishlisted;
-    setWishlisted(next);
-    if (next) addWishlist();
-    else removeWishlist();
+    toggleWishlist(product.slug);
   };
 
   const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    addToCart();
+    addItem({
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+      image_url: product.image_url,
+      sku: product.id,
+      variantIds: [],
+      optionLabels: "",
+      unitPrice: product.sale_price,
+      qty: 1,
+    });
   };
 
   return (
@@ -65,18 +75,16 @@ export function ProductCard({ product, className }: ProductCardProps) {
         {product.badge && <CornerBadge type={product.badge} />}
         <button
           type="button"
-          onClick={toggleWishlist}
-          aria-pressed={wishlisted}
-          aria-label={
-            wishlisted ? "Remove from wishlist" : "Add to wishlist"
-          }
+          onClick={handleToggleWishlist}
+          aria-pressed={inWishlist}
+          aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
           className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:bg-white"
         >
           <Heart
             size={14}
             className={cn(
               "transition-colors",
-              wishlisted
+              inWishlist
                 ? "fill-brand-sale text-brand-sale"
                 : "text-gray-500"
             )}

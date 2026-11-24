@@ -16,7 +16,8 @@ import { cn } from "@/lib/utils";
 import { previewCategories } from "@/data/preview";
 import { MegaMenu } from "./mega-menu";
 import { SearchSuggestions } from "./search-suggestions";
-import { useCartStore } from "./cart-store";
+import { useCartStore, selectCartCount } from "./cart-store";
+import { CartDrawer } from "./cart-drawer";
 
 const NAV_LINKS = [
   { label: "Today's Deals", href: "#" },
@@ -63,8 +64,12 @@ function TopUtilityBar() {
 }
 
 function MainHeader() {
-  const cartCount = useCartStore((state) => state.cartCount);
-  const wishlistCount = useCartStore((state) => state.wishlistCount);
+  const lines = useCartStore((state) => state.lines);
+  const wishlist = useCartStore((state) => state.wishlist);
+  const setDrawerOpen = useCartStore((state) => state.setDrawerOpen);
+  const cartCount = selectCartCount(lines);
+  const wishlistCount = wishlist.length;
+
   return (
     <div className="border-b border-border bg-white">
       <div className="container-store flex items-center gap-4 py-4">
@@ -77,7 +82,7 @@ function MainHeader() {
 
         <div className="flex shrink-0 items-center gap-1">
           <Link
-            href="#"
+            href="/account/wishlist"
             aria-label={`Wishlist, ${wishlistCount} items`}
             className="relative flex h-10 w-10 items-center justify-center rounded-full text-foreground transition hover:bg-gray-100"
           >
@@ -91,16 +96,19 @@ function MainHeader() {
           >
             <User size={20} />
           </Link>
-          <Link
-            href="#"
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
             aria-label={`Cart, ${cartCount} items`}
             className="relative flex h-10 w-10 items-center justify-center rounded-full text-foreground transition hover:bg-gray-100"
           >
             <ShoppingCart size={20} />
             <CountBadge count={cartCount} />
-          </Link>
+          </button>
         </div>
       </div>
+
+      <CartDrawer />
     </div>
   );
 }

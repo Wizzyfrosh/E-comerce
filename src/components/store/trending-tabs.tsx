@@ -64,21 +64,33 @@ function orderProducts(
 function FeaturedProductPanel({ product }: { product: ProductCardData }) {
   const variants = product.variants ?? [];
   const [activeVariant, setActiveVariant] = useState(0);
-  const [wishlisted, setWishlisted] = useState(false);
-  const addToCart = useCartStore((state) => state.addToCart);
-  const addWishlist = useCartStore((state) => state.addWishlist);
-  const removeWishlist = useCartStore((state) => state.removeWishlist);
+  const addItem = useCartStore((state) => state.addItem);
+  const toggleWishlist = useCartStore((state) => state.toggleWishlist);
+  const inWishlist = useCartStore((state) =>
+    state.wishlist.includes(product.slug)
+  );
 
   const activeImage =
     variants[activeVariant]?.image_url ?? product.image_url;
   const activeColorName = variants[activeVariant]?.option_value;
 
-  const toggleWishlist = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleToggleWishlist = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const next = !wishlisted;
-    setWishlisted(next);
-    if (next) addWishlist();
-    else removeWishlist();
+    toggleWishlist(product.slug);
+  };
+
+  const handleAddToCart = () => {
+    addItem({
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+      image_url: activeImage,
+      sku: product.id,
+      variantIds: [],
+      optionLabels: "",
+      unitPrice: product.sale_price,
+      qty: 1,
+    });
   };
 
   return (
@@ -94,17 +106,17 @@ function FeaturedProductPanel({ product }: { product: ProductCardData }) {
         {product.badge && <CornerBadge type={product.badge} />}
         <button
           type="button"
-          onClick={toggleWishlist}
-          aria-pressed={wishlisted}
+          onClick={handleToggleWishlist}
+          aria-pressed={inWishlist}
           aria-label={
-            wishlisted ? "Remove from wishlist" : "Add to wishlist"
+            inWishlist ? "Remove from wishlist" : "Add to wishlist"
           }
           className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:bg-white"
         >
           <Heart
             size={16}
             className={cn(
-              wishlisted ? "fill-brand-sale text-brand-sale" : "text-gray-500"
+              inWishlist ? "fill-brand-sale text-brand-sale" : "text-gray-500"
             )}
           />
         </button>
@@ -164,7 +176,7 @@ function FeaturedProductPanel({ product }: { product: ProductCardData }) {
 
         <button
           type="button"
-          onClick={() => addToCart()}
+          onClick={handleAddToCart}
           className="mt-auto flex w-full items-center justify-center gap-2 rounded-md bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
         >
           <ShoppingCart size={15} />
